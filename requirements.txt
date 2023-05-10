@@ -6,3 +6,5 @@ scikit-learn
 tensorflow-cpu
 tensorflow-hub
 openCV-python
+
+split-folders # for splitting folders, maybe I don't use it, well wee

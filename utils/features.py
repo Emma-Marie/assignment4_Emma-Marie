@@ -1,3 +1,11 @@
+import numpy as np
+from numpy.linalg import norm
+# tensorflow
+from tensorflow.keras.preprocessing.image import (load_img, 
+                                                  img_to_array)
+from tensorflow.keras.applications.vgg16 import (VGG16, 
+                                                 preprocess_input)
+
 def extract_features(img_path, model):
     """
     Extract features from image data using pretrained model (e.g. VGG16)

@@ -9,6 +9,9 @@ from tensorflow.keras.preprocessing.image import (load_img,
                                                   img_to_array)
 from tensorflow.keras.applications.vgg16 import (VGG16, 
                                                  preprocess_input)
+                                                 # import NearestNeighbors
+# scikit-learn
+from sklearn.neighbors import NearestNeighbors
 # matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -42,8 +45,6 @@ def get_data(args, model):
     return filenames, feature_list, folder
 
 def image_search(args, feature_list, folder):
-    # import NearestNeighbors
-    from sklearn.neighbors import NearestNeighbors
     neighbors = NearestNeighbors(n_neighbors=10, 
                                 algorithm='brute',
                                 metric='cosine').fit(feature_list)

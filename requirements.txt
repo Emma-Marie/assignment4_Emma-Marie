@@ -10,3 +10,4 @@ argparse
 
 split-folders # for splitting folders, maybe I don't use it, well wee
 scikit-image # for something with the heatmap (from ChatGpt), so maybe I don't use it
+scipy

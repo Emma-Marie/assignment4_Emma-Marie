@@ -1,4 +1,4 @@
-# assignment4_self-assigned_Emma-Marie
+# assignment4_vis_self-assigned_Emma-Marie
 
 ## Description and purpose
 

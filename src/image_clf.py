@@ -38,13 +38,15 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append(".")
 import utils.plotting as pl
+# for saving 
+from joblib import dump
 
 def input_parse():
     #initialie the parser
     parser = argparse.ArgumentParser()
     # add argument
-    parser.add_argument("--subfolder", type=str, default="Frescoes") # name of one of the four folders
-    parser.add_argument("--image_name", type=str, default="fresco_1.jpg") # name of the the image you want to classify
+    parser.add_argument("--subfolder", type=str, default="Frescoes") # name of the selfchosen subfolder
+    parser.add_argument("--image_name", type=str, default="fresco_1.jpg") # name of the image you want to classify
     # parse the arguments from command line
     args = parser.parse_args()
     return args
@@ -54,7 +56,6 @@ def get_data():
     data_path = "in/Orthodox_Churches/"
     # list all classes
     class_labels = ["Chandelier","Dome","Frescoes","Lunette"]
-
     # create data frame of image path and label
     img_list = []
     label_list = []
@@ -88,24 +89,22 @@ def get_data():
     X = np.array(X)
     y = np.array(y)
 
-    # train-validation-test split
+    # train-validation-test split (80% train, 16% test, 4% validation)
     X_train, X_test_val, y_train, y_test_val = train_test_split(X, y)
-    X_test, X_val, y_test, y_val = train_test_split(X_test_val, y_test_val) # the split is train 80%, validation for model tuning 4%, test set 16%
+    X_test, X_val, y_test, y_val = train_test_split(X_test_val, y_test_val) 
 
     return class_labels, X_train, y_train, X_test, y_test, X_val, y_val
 
-def img_classifier(class_labels, X_train, y_train, X_val, y_val):
+def img_classifier(class_labels, X_train, y_train, X_test, X_val, y_val):
     # load model
     base_model = VGG16(input_shape=(96,96,3), include_top=False, weights='imagenet')
-
     # freeze model parameters (now only parameters in last layer can be adjusted)
     for layer in base_model.layers:
         layer.trainable = False
     base_model.layers[-2].trainable = True
     base_model.layers[-3].trainable = True
     base_model.layers[-4].trainable = True
-
-    # add layers to model. The layers Flatten, Dropout, and Dense are added to VGG16
+    # add the layers Flatten, Dropout, and Dense to VGG16 model
     model = Sequential()
     model.add(Input(shape=(96,96,3)))
     model.add(base_model)
@@ -115,19 +114,22 @@ def img_classifier(class_labels, X_train, y_train, X_val, y_val):
     model.add(Dropout(0.2))
     model.add(Dense(len(class_labels), activation='softmax'))
     model.summary()
-
+    
     # Train model
     model.compile(
     optimizer="adam",
     loss='sparse_categorical_crossentropy',
-    metrics=['acc'])
+    metrics=['accuracy'])
     history = model.fit(
         X_train, 
         y_train, 
         epochs=5, 
         validation_data=(X_val, y_val))
+    
+    # get predictions
+    predictions = model.predict(X_test, batch_size=128)
 
-    return model, history
+    return model, history, predictions
 
 def predict_image(args, model, class_labels, y_test):
     folder = args.subfolder
@@ -140,16 +142,16 @@ def predict_image(args, model, class_labels, y_test):
     image = img_to_array(img)
     # convert to rank 4 tensor
     image = np.expand_dims(image, axis=0)
-    # prepare the image for the VGG model (Ross is not sure why we have to do this, but we do)
+    # prepare the image for the model
     image = preprocess_input(image)
-
     # Get the predicted probabilities
     y_pred = model.predict(image)
     # Convert y_test to one-hot encoded vectors
-    num_classes = 4  # Replace with the actual number of classes in your classification problem
+    num_classes = 4  # set number of classes in my classification problem
     y_test_encoded = to_categorical(y_test, num_classes)
-    prediction_int =  y_pred.astype(int)# turn prediction from float into integer
-    # get the predicted label
+    # turn prediction from float into integer
+    prediction_int =  y_pred.astype(int)
+    # get the predicted label for self-chosen image
     predicted_class_index = np.argmax(prediction_int)
     img_label = class_labels[predicted_class_index]
 
@@ -160,52 +162,29 @@ def main():
     # load, proces and split data
     class_labels, X_train, y_train, X_test, y_test, X_val, y_val = get_data()
     # train classifier model
-    model, history = img_classifier(class_labels, X_train, y_train, X_val, y_val)
+    model, history, predictions = img_classifier(class_labels, X_train, y_train, X_test, X_val, y_val)
+    # save classifier model
+    model_path = os.path.join("models", "image_classifier.joblib")
+    dump(model, model_path)
+    print("Model daved")
     # predict class of chosen image
     img_label, y_test_encoded, y_test = predict_image(args, model, class_labels, y_test)
     print(f"The target image is an image of a: {img_label}")
 
-    # plot evaluation
-    plt.plot(history.history['acc'], marker='o')
-    plt.plot(history.history['val_acc'], marker='o')
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'val'], loc='lower right')
-    #Save plot
-    output_path = os.path.join("out", "evaluation_acc_plot.png")
-    plt.savefig(output_path, dpi = 100)
-    print("Plot is saved!")
-
-    # plot evaluation
-    plt.plot(history.history['loss'], marker='o')
-    plt.plot(history.history['val_loss'], marker='o')
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'loss'], loc='lower right')
-    #Save plot
-    output_path = os.path.join("out", "evaluation_loss_plot.png")
-    plt.savefig(output_path, dpi = 100)
-    print("Plot is saved!")
-
-    # Training and validation history plots
-    pl.plot_history(history, 5)
-    output_path = os.path.join("out", "train_and_val_plots.png")
-    plt.savefig(output_path, dpi = 100)
-    print("Plot is saved!")
-
-    # predictions
-    predictions = model.predict(X_test, batch_size=128)
     # classification report
     report = classification_report(y_test_encoded.argmax(axis=1),
                                 predictions.argmax(axis=1),
                                 target_names=class_labels)
-    # Save report in "out"
+    # Save clf report in "out"
     file_path = os.path.join("out", "classification_report.txt")
     with open(file_path, "w") as f: #"writing" classifier report and saving it
         f.write(report)
     print("Classification report is saved!")
+    # Create and save training and validation history plots
+    pl.plot_history(history, 5)
+    output_path = os.path.join("out", "train_and_val_plots.png")
+    plt.savefig(output_path, dpi = 100)
+    print("Plot saved!")
 
 if __name__ == "__main__":
     main()

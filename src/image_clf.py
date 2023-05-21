@@ -3,33 +3,24 @@ import pandas as pd
 import os
 import numpy as np
 import argparse
-# tf tools
-import tensorflow as tf
 # image processsing
 from tensorflow.keras.preprocessing.image import (load_img,
-                                                  img_to_array,
-                                                  ImageDataGenerator)
+                                                  img_to_array)
 # VGG16 model
 from tensorflow.keras.applications.vgg16 import (preprocess_input,
-                                                 decode_predictions,
-                                                 VGG16)
+                                                 VGG16) 
 # layers
 from tensorflow.keras.layers import (Flatten, 
                                      Dense, 
-                                     Dropout, 
-                                     BatchNormalization)
+                                     Dropout) 
 # generic model object
 from tensorflow.keras.models import Model
-# optimizers
-from tensorflow.keras.optimizers.schedules import ExponentialDecay
-from tensorflow.keras.optimizers import SGD
 # for freezing model parameters
 from tensorflow.keras.models import *
 from tensorflow.keras.layers import *
 # for predictions
 from keras.utils import to_categorical
 #scikit-learn
-from sklearn.preprocessing import LabelBinarizer
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 # for evaluation plot

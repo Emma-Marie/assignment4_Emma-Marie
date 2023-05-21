@@ -1,15 +1,8 @@
+import os
 import argparse
-# data analysis
-import numpy as np
-from numpy.linalg import norm
 from tqdm import tqdm # gives a progress bar which is nice and easy to understand. 
 # tensorflow
-import tensorflow_hub as hub
-from tensorflow.keras.preprocessing.image import (load_img, 
-                                                  img_to_array)
-from tensorflow.keras.applications.vgg16 import (VGG16, 
-                                                 preprocess_input)
-                                                 # import NearestNeighbors
+from tensorflow.keras.applications.vgg16 import (VGG16) 
 # scikit-learn
 from sklearn.neighbors import NearestNeighbors
 # matplotlib
@@ -19,8 +12,6 @@ import matplotlib.image as mpimg
 import sys
 sys.path.append(".")
 import utils.features as fe
-# save dataframes
-import pandas as pd
 
 def input_parse():
     #initialie the parser

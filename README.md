@@ -55,8 +55,8 @@ You run the two scripts in the following way:
 - Running ```image_search.py```:
     Type "python3 src/image_search.py --subfolder --number". 
     - The subfolder argument is the name of one of the four subfolers Chandelier, Dome, Frescoes, and Lunette, from which the target image should be found. If no subfolder is chosen, "Frescoes" is the default folder.
-    - The number argument is refering to the image, which you want as the target image. The number is not the image name, but refers to the order in which the images lay in the folder. If no image number is chosen, 1 is the default number. 
-    The comment below is an example with image number 10 in the Dome folder as the target image:
+    - The number argument is refering to the image, which you want as the target image. The number is not the image name, but refers to the order in which the images lay in the folder. If no image number is chosen, 0 is the default number. 
+    The comment below is an random example with image number 10 in the Dome folder as the target image:
     
                 python3 src/image_search.py --subfolder Dome --number 10
 
@@ -64,7 +64,7 @@ You run the two scripts in the following way:
     Type "python3 src/image_clf.py --subfolder --image_name". 
     - The *subfolder* argument is the name of one of the four subfolers Chandelier, Dome, Frescoes, and Lunette, from which the target image should be found. 
     - The *image_name* argument is refering to the name of the image, which you want as the target image. If no subfolder is chosen, "fresco_1.jpg" is the default image name. 
-    The comment below is an example with the image called "dome_1.jpg" in the Dome folder:
+    The comment below is an random example with the image called "dome_1.jpg" in the Dome folder:
 
                 python3 src/image_clf.py --subfolder Dome --image_name dome_1.jpg
 

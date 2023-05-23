@@ -33,7 +33,7 @@ import utils.plotting as pl
 from joblib import dump
 
 def input_parse():
-    #initialie the parser
+    # initialize the parser
     parser = argparse.ArgumentParser()
     # add argument
     parser.add_argument("--subfolder", type=str, default="Frescoes") # name of the selfchosen subfolder
@@ -80,14 +80,14 @@ def get_data():
     X = np.array(X)
     y = np.array(y)
 
-    # train-validation-test split (80% train, 16% test, 4% validation)
+    # split data into train, validation and test data 
     X_train, X_test_val, y_train, y_test_val = train_test_split(X, y)
     X_test, X_val, y_test, y_val = train_test_split(X_test_val, y_test_val) 
 
     return class_labels, X_train, y_train, X_test, y_test, X_val, y_val
 
 def img_classifier(class_labels, X_train, y_train, X_test, X_val, y_val):
-    # load model
+    # load VGG16 model
     base_model = VGG16(input_shape=(96,96,3), include_top=False, weights='imagenet')
     # freeze model parameters (now only parameters in last layer can be adjusted)
     for layer in base_model.layers:
@@ -103,26 +103,27 @@ def img_classifier(class_labels, X_train, y_train, X_test, X_val, y_val):
     model.add(Dropout(0.2))
     model.add(Dense(256, activation='relu'))
     model.add(Dropout(0.2))
-    model.add(Dense(len(class_labels), activation='softmax'))
+    model.add(Dense(len(class_labels), activation='softmax')) # make output equal to number of classes, which is 4. 
     model.summary()
-    
     # Train model
     model.compile(
     optimizer="adam",
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy'])
-    history = model.fit(
+    history = model.fit( # fit model to the training data
         X_train, 
         y_train, 
-        epochs=5, 
+        epochs=5, # 5 epochs
         validation_data=(X_val, y_val))
-    
+    print("Model is trained!")
+
     # get predictions
     predictions = model.predict(X_test, batch_size=128)
 
     return model, history, predictions
 
-def predict_image(args, model, class_labels, y_test):
+def predict_image(args, model, class_labels, y_test, predictions):
+    # define folder and image name to be the parsed arguments
     folder = args.subfolder
     image_name = args.image_name
     # file path
@@ -145,23 +146,7 @@ def predict_image(args, model, class_labels, y_test):
     # get the predicted label for self-chosen image
     predicted_class_index = np.argmax(prediction_int)
     img_label = class_labels[predicted_class_index]
-
-    return img_label, y_test_encoded, y_test
-
-def main():
-    args = input_parse()
-    # load, proces and split data
-    class_labels, X_train, y_train, X_test, y_test, X_val, y_val = get_data()
-    # train classifier model
-    model, history, predictions = img_classifier(class_labels, X_train, y_train, X_test, X_val, y_val)
-    # save classifier model
-    model_path = os.path.join("models", "image_classifier.joblib")
-    dump(model, model_path)
-    print("Model daved")
-    # predict class of chosen image
-    img_label, y_test_encoded, y_test = predict_image(args, model, class_labels, y_test)
     print(f"The target image is an image of a: {img_label}")
-
     # classification report
     report = classification_report(y_test_encoded.argmax(axis=1),
                                 predictions.argmax(axis=1),
@@ -171,6 +156,22 @@ def main():
     with open(file_path, "w") as f: #"writing" classifier report and saving it
         f.write(report)
     print("Classification report is saved!")
+
+    return img_label, y_test_encoded, y_test
+
+def main():
+    # get parsed arguments
+    args = input_parse()
+    # load, proces and split data
+    class_labels, X_train, y_train, X_test, y_test, X_val, y_val = get_data()
+    # train classifier model
+    model, history, predictions = img_classifier(class_labels, X_train, y_train, X_test, X_val, y_val)
+    # save classifier model
+    model_path = os.path.join("models", "image_classifier.joblib")
+    dump(model, model_path)
+    print("Model daved")
+    # predict class of chosen image and save classification report
+    img_label, y_test_encoded, y_test = predict_image(args, model, class_labels, y_test, predictions)
     # Create and save training and validation history plots
     pl.plot_history(history, 5)
     output_path = os.path.join("out", "train_and_val_plots.png")

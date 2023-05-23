@@ -36,6 +36,7 @@ def get_data(args, model):
         feature_list.append(fe.extract_features(filenames[i], model))
 
     return filenames, feature_list, folder
+    print("Data and features are ready!")
 
 def image_search(args, filenames, feature_list, folder):
     neighbors = NearestNeighbors(n_neighbors=10, 
@@ -67,6 +68,7 @@ def image_search(args, filenames, feature_list, folder):
     print("Dataframe saved")
 
     return most_similar, target_image_number
+    print("Neighbors found!")
 
 def img_plotting(filenames, most_similar, target_image_number):
     # create a plot of the size 2x3
@@ -92,22 +94,6 @@ def img_plotting(filenames, most_similar, target_image_number):
     outpath = os.path.join("out", similar_plot_name)
     plt.savefig(outpath)
     print("Plot saved!")
-    # plt target image and save
-    #plt.imshow(mpimg.imread(filenames[target_image_number]))
-    #target_plot_name = (f"target_image_{folder}{target_image_number}.png")
-    #outpath = os.path.join("out", target_plot_name)
-    #plt.savefig(outpath)
-    # plot 5 most similar images and save
-    #f, axarr = plt.subplots(1,5)
-    #axarr[0].imshow(mpimg.imread(filenames[most_similar[0]]))
-    #axarr[1].imshow(mpimg.imread(filenames[most_similar[1]]))
-    #axarr[2].imshow(mpimg.imread(filenames[most_similar[2]]))
-    #axarr[3].imshow(mpimg.imread(filenames[most_similar[3]]))
-    #axarr[4].imshow(mpimg.imread(filenames[most_similar[4]]))
-    #similar_plot_name = (f"most_similar_{folder}{target_image_number}.png")
-    #outpath = os.path.join("out", similar_plot_name)
-    #plt.savefig(outpath)
-    #print("Plots saved!")
 
 def main():
     # load VGG16
@@ -119,10 +105,8 @@ def main():
     args = input_parse()
     # load data and get list of features
     filenames, feature_list, folder = get_data(args, model)
-    print("Data and features are ready!")
     # get nearest neigbors
     most_similar, target_image_number = image_search(args, filenames, feature_list, folder)
-    print("Neighbors found!")
     # plot target image ans 5 most similar
     img_plotting(filenames, most_similar, target_image_number)
 

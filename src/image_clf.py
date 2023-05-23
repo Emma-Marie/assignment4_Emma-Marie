@@ -37,7 +37,7 @@ def input_parse():
     parser = argparse.ArgumentParser()
     # add argument
     parser.add_argument("--subfolder", type=str, default="Frescoes") # name of the selfchosen subfolder
-    parser.add_argument("--image_name", type=str, default="fresco_1.jpg") # name of the image you want to classify
+    parser.add_argument("--image", type=str, default="fresco_1.jpg") # name of the image you want to classify
     # parse the arguments from command line
     args = parser.parse_args()
     return args
@@ -125,7 +125,7 @@ def img_classifier(class_labels, X_train, y_train, X_test, X_val, y_val):
 def predict_image(args, model, class_labels, y_test, predictions):
     # define folder and image name to be the parsed arguments
     folder = args.subfolder
-    image_name = args.image_name
+    image_name = args.image
     # file path
     filepath = os.path.join("in", "Orthodox_Churches", folder, image_name)
     # load image

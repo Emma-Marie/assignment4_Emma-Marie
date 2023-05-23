@@ -20,7 +20,7 @@ def input_parse():
     parser = argparse.ArgumentParser()
     # add argument
     parser.add_argument("--subfolder", type=str, default="Frescoes") # name of the selfchosen subfolder
-    parser.add_argument("--number", type=int, default=0) # the number of the selfchosen target image
+    parser.add_argument("--image", type=str, default="fresco_1.jpg") # the name of the target image
     # parse the arguments from command line
     args = parser.parse_args()
     return args
@@ -35,16 +35,17 @@ def get_data(args, model):
     for i in tqdm(range(len(filenames)), position=0, leave=True):
         feature_list.append(fe.extract_features(filenames[i], model))
 
-    return filenames, feature_list, folder
+    return filenames, feature_list, root_dir
     print("Data and features are ready!")
 
-def image_search(args, filenames, feature_list, folder):
+def image_search(args, filenames, feature_list, root_dir):
     neighbors = NearestNeighbors(n_neighbors=10, 
                                 algorithm='brute',
                                 metric='cosine').fit(feature_list)
     # Get features from chosen target image
-    target_image_number = args.number
-    distances, indices = neighbors.kneighbors([feature_list[target_image_number]]) 
+    target_image_name = args.image
+    target_image_index = filenames.index(os.path.join(root_dir, target_image_name))
+    distances, indices = neighbors.kneighbors([feature_list[target_image_index]]) 
     # return list of the five closest images (excluding the image itself)
     most_similar = []
     for i in range(0,6): 
@@ -62,35 +63,26 @@ def image_search(args, filenames, feature_list, folder):
     # create dataframe from list of similar images
     similar_df = pd.DataFrame(similar_images)
     #save dataframe
-    df_name = (f"nearn_distances_{os.path.basename(filenames[target_image_number])}.csv")
+    df_name = (f"nearn_distances_{os.path.basename(filenames[target_image_index])}.csv")
     df_path = os.path.join("out", df_name)
     similar_df.to_csv(df_path, index=False)
     print("Dataframe saved")
 
-    return most_similar, target_image_number
+    return most_similar, target_image_index
     print("Neighbors found!")
 
-def img_plotting(filenames, most_similar, target_image_number):
-    # create a plot of the size 2x3
+def img_plotting(filenames, most_similar, target_image_index):
     fig, axs = plt.subplots(2, 3, figsize=(10, 10))
-    # setting title of plot
-    fig.suptitle(f"Target {os.path.basename(filenames[target_image_number])} and the 5 most similar images")
-    # plotting target image
-    axs[0, 0].imshow(mpimg.imread(filenames[target_image_number]))
-    axs[0, 0].set_title(f"Target Image {os.path.basename(filenames[target_image_number])}")
-    # plotting five most similar images
-    axs[0, 1].imshow(mpimg.imread(filenames[most_similar[1]]))
-    axs[0, 1].set_title(f'Similar Image 1: {os.path.basename(filenames[most_similar[1]])}')
-    axs[0, 2].imshow(mpimg.imread(filenames[most_similar[2]]))
-    axs[0, 2].set_title(f'Similar Image 2: {os.path.basename(filenames[most_similar[2]])}')
-    axs[1, 0].imshow(mpimg.imread(filenames[most_similar[3]]))
-    axs[1, 0].set_title(f'Similar Image 3: {os.path.basename(filenames[most_similar[3]])}')
-    axs[1, 1].imshow(mpimg.imread(filenames[most_similar[4]]))
-    axs[1, 1].set_title(f'Similar Image 4: {os.path.basename(filenames[most_similar[4]])}')
-    axs[1, 2].imshow(mpimg.imread(filenames[most_similar[5]]))
-    axs[1, 2].set_title(f'Similar Image 5: {os.path.basename(filenames[most_similar[5]])}')
-    # saving plot as a single image
-    similar_plot_name = (f"nearn_similar_{os.path.basename(filenames[target_image_number])}.png")
+    fig.suptitle(f"Target {os.path.basename(filenames[target_image_index])} and the 5 most similar images")
+
+    axs[0, 0].imshow(mpimg.imread(filenames[target_image_index]))
+    axs[0, 0].set_title(f"Target Image {os.path.basename(filenames[target_image_index])}")
+
+    for i, idx in enumerate(most_similar[1:]):
+        axs[(i+1)//3, (i+1)%3].imshow(mpimg.imread(filenames[idx]))
+        axs[(i+1)//3, (i+1)%3].set_title(f"Similar Image {i+1}: {os.path.basename(filenames[idx])}")
+
+    similar_plot_name = f"nearn_similar_{os.path.basename(filenames[target_image_index])}.png"
     outpath = os.path.join("out", similar_plot_name)
     plt.savefig(outpath)
     print("Plot saved!")
@@ -104,11 +96,11 @@ def main():
     # get parsed arguments
     args = input_parse()
     # load data and get list of features
-    filenames, feature_list, folder = get_data(args, model)
+    filenames, feature_list, root_dir = get_data(args, model)
     # get nearest neigbors
-    most_similar, target_image_number = image_search(args, filenames, feature_list, folder)
+    most_similar, target_image_index = image_search(args, filenames, feature_list, root_dir)
     # plot target image ans 5 most similar
-    img_plotting(filenames, most_similar, target_image_number)
+    img_plotting(filenames, most_similar, target_image_index)
 
 if __name__ == "__main__":
     main()

@@ -1,31 +1,26 @@
 # assignment4_vis_self-assigned_Emma-Marie
 
 ## 1. Contribution
-I have created this assignment by myself and not in colaboration with other students. The classification part of the assignment is inspired by the blogpost "Image Classification for beginner" from MLearning.ai. 
+The code for this assignment has been developed on my own, but with inspiration from classmates during the class lectures. The functions in the scripts ```features.py``` and ```plotting.py``` in the ```utils``` folder is provided by my teacher Ross. 
 
 ## 2. Description and purpose
-
-This assignment consists of two main scripts: an image search script (```image_search.py```) using the NearestNeighbors approach from Scikit-learn, and an image classification script (```image_clf.py```) using a finetuned version of VGG16 from tensorflow.keras. The two scripts are located in the ```src``` folder. 
-
-The purpose of the assignment is the following:
-- train an image search model using NearestNeighbors and VGG16.
-    - find and plot the five images, which is most similar to a self-chosen image from the data set which is argparsed into the model through the commandline. 
-    - save a plot with the target image and the plot of the five most similar images in the ```out``` folder. 
-- train an image classifier using VGG16 and finetuning its last layers. 
-    - create a classification report and save it in the ```out``` folder. 
-    - create a validation and loss plot and save it in the ```out``` folder.
-    - save the trained model in the ```models``` folder.
-        - NB: No model is pushed to the ```models``` folder on Github because of the size of the model. 
+This assignment consists of two main scripts: ```image_search.py``` is an image search script using k-nearest neighbor from ```Scikit-learn``` and the CNN VGG16 model from ```tensorflow.keras```, while ```image_clf.py``` is an image classification script, which uses a finetuned version of the VGG16 model to classify the image dataset. The assignment has two purposes:
+1)	to train an image search model to find and plot the five images most similar to a chosen target image, which is parsed into the script using argparse. 
+2)	To train an image classifier using a version of VGG16 of which the last layers are finetuned on this specific dataset. Then the model is able to predict the class of the target image chosen through argparse, and the class is printed in the terminal. 
 
 ## 3. Methods
+My assignment consists of two scripts, which can both be found in the ```src``` folder:
+The ```image_search.py``` load the VGG16 model and uses it together with the function from the ```features.py```utils script to get the image features for all images in the chosen subfolder and append them to a list. Then it gets the features from the chosen target image and uses ```k-nearest neighbor``` to find the most similar images to the target image and create a list of the five images most similar to the target image. The output is a data frame with the names and distance scores of these images, and a plot of these images and the target image. They are saved in the ```out``` folder. 
+The ```image_clf.py``` creates a data frame of image paths and labels, creates a dictionary with the labels represented as numbers, combine the images and encoded labels, and split the data into train, test and validation data. Then the ```VGG16``` model is loaded and flatten, dropout and dense layers are added to the model, which is then trained on the data. The class of the image chosen through argparse is predicted and printed in the terminal. The output is a classification report and a plot showing the loss and accuracy curve of the train and validation data. They are saved in the ```out``` folder. The trained model is saved in the ```models``` folder. Note that the saved model hasn’t been pushed to GitHub because of the size limits on GitHub.  
+
+### 3.1 Utils
+The ```features.py``` script provided by Ross uses the function preprocessed_input() from VGG16  to extract image features, which are then flattened and normalized. 
 
 ## 4. Data
-The data used in this assignment is called ```Cultural Heritage Dataset - Orthodox Churches``` and is downloaded from Kaggle. 
+The data used for this assignment is called ```Cultural Heritage Dataset – Orthodox Churches``` and is downloaded from Kaggle. The dataset contains images of Christian Orthodox churches and consists of a main folder called ```Orthodox_Churches``` containing the four subfolders ```Chandelier```, ```Dome```, ```Frescoes```, and ```Lunette```. Each subfolder name is also the name of the class of the images, which it contains. Each class holds 200 images, which gives 800 images in total. 
 
-DESCRIBE DATA
-
-### 4.1 Load the data
-Before running the scripts, please download the dataset from Kaggle (4MB) here: https://www.kaggle.com/datasets/rjankovic/cultural-heritage-orthodox-churches. Place the data in the ```in``` folder, so your folder structure looks like this:
+### 4.1 Get the data
+Before running the scripts, please download the dataset from Kaggle (4MB) here: https://www.kaggle.com/datasets/rjankovic/cultural-heritage-orthodox-churches. Place the data in the ```in``` folder so your folder structure looks like this:
 
 ```
 - in
@@ -36,48 +31,32 @@ Before running the scripts, please download the dataset from Kaggle (4MB) here: 
         - Lunette
 ```
 
-## 5. Usage and reproducibility 
+## 5. Usage 
 
 ### 5.1 Prerequisites
-You must install xxx to be able to run the scripts. I have created and tested the scripts using Code Python 1.73.1 on UCloud.sdu.dk. 
+Before running the scripts, you need to install Python 3 and Bash. I created and ran the code using the app “Coder Python 1.73.1” on Ucloud.sdu.dk. Clone the GitHub repository on your device to get started. 
 
 ### 5.2 Install packages
-First step is to run the setup.sh script through the commandline to create a virtual environment and install the requirements.txt:
+First step is to run the command “setup.sh“ through the command line to create a virtual environment and install the packages in requirements.txt:
             
             bash setup.sh
 
-Second step is to activate the virtual environment manually by running "source ./image_search_env/bin/activate" from the command line:
+Second step is to activate the virtual environment manually by running “source ./image_search_env/bin/activate”:
 
             source ./image_search_env/bin/activate
 
-### 5.3 Running the scripts
-You run the two scripts in the following way: 
-- Running ```image_search.py```:
-    Type "python3 src/image_search.py --subfolder --number". 
-    - The subfolder argument is the name of one of the four subfolers Chandelier, Dome, Frescoes, and Lunette, from which the target image should be found. If no subfolder is chosen, "Frescoes" is the default folder.
-    - The number argument is refering to the image, which you want as the target image. The number is not the image name, but refers to the order in which the images lay in the folder. If no image number is chosen, 0 is the default number. 
-    The comment below is an random example with image number 10 in the Dome folder as the target image:
+### 5.3 Run the scripts
+You run image_search.py by running the command “python3 src/image_search.py --subfolder --image” from the command line. The --subfolder argument is the name of one of the four subfolders Chandelier, Dome, Frescoes, or Lunette. The target image is found in this subfolder. If no subfolder is specified, “Frescoes” is the default folder. The --image argument is the name of the target image. If no image name is chosen, “fresco_1.jpg” is the default image. This image is also used in the code below:
     
-                python3 src/image_search.py --subfolder Dome --number 10
+                python3 src/image_search.py --subfolder Frescoes --image fresco_1.jpg
 
-- Running ```image_clf.py```:
-    Type "python3 src/image_clf.py --subfolder --image_name". 
-    - The *subfolder* argument is the name of one of the four subfolers Chandelier, Dome, Frescoes, and Lunette, from which the target image should be found. 
-    - The *image_name* argument is refering to the name of the image, which you want as the target image. If no subfolder is chosen, "fresco_1.jpg" is the default image name. 
-    The comment below is an random example with the image called "dome_1.jpg" in the Dome folder:
+You run image_clf.py by running the command “python3 src/image_clf.py --subfolder --image” from the command line. The --subfolder argument is the name of one of the four subfolders Chandelier, Dome, Frescoes, or Lunette. The target image is found in this subfolder. If no subfolder is specified, “Frescoes” is the default folder. The --image argument refers to the name of the target image. If no image name is chosen, “fresco_1.jpg” is the default image. This image is also used in the code below:
 
-                python3 src/image_clf.py --subfolder Dome --image_name dome_1.jpg
+                python3 src/image_clf.py --subfolder Frescoes --image fresco_1.jpg
 
-## Utils
-In the ```utils``` folder is a script called ```features.py```. The script contains a function that extracts features from image data using pretrained model (e.g. VGG16). The function is created by my teacher Ross. The function from this script is called in my main script. 
+## 6. Discussing of results
+The accuracy of the model is 95% which is very high. This indicates that the model is overfitted, which means that it performs very well on the images in this dataset, but it wouldn’t be good at generalizing. Therefore, it would have a hard time recognizing images of frescoes, domes, chandeliers or lunettes, which it hasn’t seen before. Looking at the plots, the two loss curves should have started at a high loss in the beginning, then they should have gradually decreased before they evened out in the end. Instead, the curves are going up and down and don’t even out towards the end. This indicates that the learning process of the model isn’t optimal and that the model is overfit. Looking at the accuracy plot, the gap between the train and validation curves also indicates that the model is overfit. The overfitting can be due to the fact that The Cultural Heritage Dataset is quite small, and that the model is too complex for such a small dataset. 
 
-## Discussing of the results
-
-- High accuracy, but overfit model
-- some classes has high accuracy and some very low
-
-## References
-Kimnaruk, Yannawut (June 4 2022), "Image Classification for beginner", MLearning.ai:  https://medium.com/mlearning-ai/image-classification-for-beginner-a6de7a69bc78 (last visited May 17 2023)
-
-RJankovic, "Cultural Heritage Dataset - Orthodox Churches", Kaggle: https://www.kaggle.com/datasets/rjankovic/cultural-heritage-orthodox-churches (last visited May 19 2023)
+## 7. References
+RJankovic, “Cultural Heritage Dataset – Orthodox Churches”, Kaggle: https://www.kaggle.com/datasets/rjankovic/cultural-heritage-orthodox-churches (last visited May 19 2023). 
 

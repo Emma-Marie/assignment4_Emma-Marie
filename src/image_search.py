@@ -46,7 +46,8 @@ def image_search(args, filenames, feature_list, root_dir):
     target_image_name = args.image
     target_image_index = filenames.index(os.path.join(root_dir, target_image_name))
     distances, indices = neighbors.kneighbors([feature_list[target_image_index]]) 
-    # return list of the five closest images (excluding the image itself)
+    
+    # return list of the five closest images
     most_similar = []
     for i in range(0,6): 
         print(distances[0][i], indices[0][i])

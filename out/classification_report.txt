@@ -1,10 +1,10 @@
               precision    recall  f1-score   support
 
-  Chandelier       0.97      1.00      0.99        38
-        Dome       0.97      1.00      0.99        34
-    Frescoes       1.00      0.97      0.99        38
-     Lunette       1.00      0.97      0.99        40
+  Chandelier       1.00      0.86      0.93        37
+        Dome       1.00      0.95      0.97        41
+    Frescoes       0.85      1.00      0.92        34
+     Lunette       0.97      1.00      0.99        38
 
-    accuracy                           0.99       150
-   macro avg       0.99      0.99      0.99       150
-weighted avg       0.99      0.99      0.99       150
+    accuracy                           0.95       150
+   macro avg       0.96      0.95      0.95       150
+weighted avg       0.96      0.95      0.95       150
